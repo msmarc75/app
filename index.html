@@ -11,6 +11,17 @@
     </header>
 
     <main>
+        <div class="filters">
+            <label>Fund Manager:
+                <select id="managerFilter"></select>
+            </label>
+            <label>Fund Analyst:
+                <select id="analystFilter"></select>
+            </label>
+            <label>Fund Controller:
+                <select id="controllerFilter"></select>
+            </label>
+        </div>
         <table class="funds-table">
             <thead>
                 <tr>
@@ -169,8 +180,51 @@
         </table>
     </main>
 
-    <footer>
-        <p>&copy; 2023 Mon Site Web</p>
-    </footer>
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const table = document.querySelector('.funds-table tbody');
+        const rows = Array.from(table.querySelectorAll('tr'));
+
+        function getUniqueValues(idx) {
+            const set = new Set(rows.map(row => row.children[idx].textContent));
+            return Array.from(set).sort();
+        }
+
+        function populate(select, values) {
+            select.innerHTML = '<option value="">Tous</option>';
+            values.forEach(v => {
+                const opt = document.createElement('option');
+                opt.value = v;
+                opt.textContent = v;
+                select.appendChild(opt);
+            });
+        }
+
+        const managerFilter = document.getElementById('managerFilter');
+        const analystFilter = document.getElementById('analystFilter');
+        const controllerFilter = document.getElementById('controllerFilter');
+
+        populate(managerFilter, getUniqueValues(1));
+        populate(analystFilter, getUniqueValues(2));
+        populate(controllerFilter, getUniqueValues(3));
+
+        function applyFilters() {
+            const mVal = managerFilter.value;
+            const aVal = analystFilter.value;
+            const cVal = controllerFilter.value;
+            rows.forEach(row => {
+                const cells = row.children;
+                const show = (!mVal || cells[1].textContent === mVal) &&
+                             (!aVal || cells[2].textContent === aVal) &&
+                             (!cVal || cells[3].textContent === cVal);
+                row.style.display = show ? '' : 'none';
+            });
+        }
+
+        managerFilter.addEventListener('change', applyFilters);
+        analystFilter.addEventListener('change', applyFilters);
+        controllerFilter.addEventListener('change', applyFilters);
+    });
+    </script>
 </body>
 </html>
