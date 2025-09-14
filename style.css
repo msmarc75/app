@@ -54,3 +54,27 @@ th, td {
 thead {
     background-color: #eee;
 }
+
+section {
+    margin-bottom: 1em;
+}
+
+label {
+    display: block;
+    margin-bottom: 0.5em;
+}
+
+button {
+    margin-top: 1em;
+}
+
+.spv {
+    border: 1px solid #ccc;
+    padding: 1em;
+    margin-bottom: 1em;
+}
+
+#result pre {
+    background: #f0f0f0;
+    padding: 1em;
+}
