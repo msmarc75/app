@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calculateur de VL de fonds immobilier</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: #111827;
+      --accent: #22c55e;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --border: #1f2937;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Inter", system-ui, -apple-system, sans-serif;
+      background: radial-gradient(circle at 20% 20%, #111827, #0b1120 40%),
+        radial-gradient(circle at 80% 0%, rgba(34, 197, 94, 0.15), transparent 30%),
+        var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 16px 48px;
+    }
+
+    .shell {
+      width: min(1080px, 100%);
+      background: rgba(17, 24, 39, 0.75);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      box-shadow: 0 20px 80px rgba(0, 0, 0, 0.35);
+      border-radius: 24px;
+      padding: 32px;
+      backdrop-filter: blur(12px);
+    }
+
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(28px, 4vw, 36px);
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(34, 197, 94, 0.12);
+      color: #bbf7d0;
+      padding: 10px 14px;
+      border-radius: 999px;
+      font-size: 14px;
+      border: 1px solid rgba(34, 197, 94, 0.35);
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 20px;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    }
+
+    .card h2 {
+      margin: 0 0 12px 0;
+      font-size: 18px;
+      letter-spacing: -0.2px;
+    }
+
+    .description {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 10px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .input {
+      width: 100%;
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: #0b1220;
+      color: var(--text);
+      font-size: 15px;
+      outline: none;
+      transition: border-color 120ms ease, box-shadow 120ms ease;
+    }
+
+    .input:focus {
+      border-color: rgba(34, 197, 94, 0.5);
+      box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.12);
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    button {
+      width: 100%;
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: #052e16;
+      border: none;
+      padding: 14px 16px;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 10px 25px rgba(34, 197, 94, 0.25);
+      transition: transform 120ms ease, box-shadow 120ms ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 12px 28px rgba(34, 197, 94, 0.35);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    .results {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .result-card {
+      padding: 14px 16px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: #0c1323;
+    }
+
+    .result-card strong {
+      display: block;
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .result-card .value {
+      font-size: 22px;
+      font-weight: 700;
+      color: #bbf7d0;
+      letter-spacing: -0.3px;
+    }
+
+    ul {
+      padding-left: 18px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    footer {
+      margin-top: 18px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    @media (max-width: 640px) {
+      .shell {
+        padding: 22px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header>
+      <div>
+        <div class="badge">Calcul instantané · VL / part</div>
+        <h1>Calculez la valeur liquidative de votre fonds immobilier</h1>
+        <p class="description">
+          Indiquez les actifs et les dettes du fonds, ainsi que le nombre de parts en circulation.
+          La valeur liquidative (VL) et la VL par part sont calculées automatiquement.
+        </p>
+      </div>
+    </header>
+
+    <section class="layout">
+      <article class="card">
+        <h2>Données du fonds</h2>
+        <p class="description">Saisissez des montants en euros. Les chiffres sont arrondis à deux décimales.</p>
+
+        <div class="row">
+          <label>Valeur des actifs immobiliers
+            <input class="input" type="number" min="0" step="0.01" id="assets" value="2500000" />
+          </label>
+          <label>Trésorerie et liquidités
+            <input class="input" type="number" min="0" step="0.01" id="cash" value="120000" />
+          </label>
+        </div>
+
+        <div class="row">
+          <label>Autres actifs (créances, revenus à recevoir)
+            <input class="input" type="number" min="0" step="0.01" id="otherAssets" value="45000" />
+          </label>
+          <label>Dettes et engagements
+            <input class="input" type="number" min="0" step="0.01" id="liabilities" value="900000" />
+          </label>
+        </div>
+
+        <div class="row">
+          <label>Nombre de parts en circulation
+            <input class="input" type="number" min="1" step="1" id="shares" value="10000" />
+          </label>
+          <label>Frais (optionnel)
+            <input class="input" type="number" min="0" step="0.01" id="fees" value="15000" />
+          </label>
+        </div>
+
+        <button id="calculate">Calculer la VL</button>
+      </article>
+
+      <article class="card">
+        <h2>Résultats</h2>
+        <p class="description">Vérifiez que les dettes incluent emprunts, intérêts courus et frais restant dus.</p>
+        <div class="results">
+          <div class="result-card">
+            <strong>Valeur liquidative (VL)</strong>
+            <div class="value" id="nav">—</div>
+          </div>
+          <div class="result-card">
+            <strong>VL par part</strong>
+            <div class="value" id="navPerShare">—</div>
+          </div>
+          <div class="result-card">
+            <strong>Effet de levier (LTV)</strong>
+            <div class="value" id="ltv">—</div>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <section class="card" style="margin-top: 20px;">
+      <h2>Comment la VL est calculée ?</h2>
+      <ul>
+        <li><strong>Total des actifs</strong> = actifs immobiliers + trésorerie + autres actifs.</li>
+        <li><strong>Total des dettes</strong> = dettes et engagements + frais éventuels.</li>
+        <li><strong>Valeur liquidative (VL)</strong> = total des actifs − total des dettes.</li>
+        <li><strong>VL par part</strong> = VL ÷ nombre de parts en circulation.</li>
+        <li><strong>Effet de levier (LTV)</strong> = dettes ÷ actifs totaux.</li>
+      </ul>
+      <p class="description">
+        Ajoutez une marge de prudence ou des décotes spécifiques à votre fonds si nécessaire (vacance locative, travaux, etc.).
+      </p>
+    </section>
+
+    <footer>
+      Outil pédagogique — ne remplace pas un audit comptable ou juridique.
+    </footer>
+  </main>
+
+  <script>
+    const formatter = new Intl.NumberFormat('fr-FR', {
+      style: 'currency',
+      currency: 'EUR',
+      maximumFractionDigits: 2,
+      minimumFractionDigits: 2,
+    });
+
+    const percentFormatter = new Intl.NumberFormat('fr-FR', {
+      style: 'percent',
+      maximumFractionDigits: 1,
+      minimumFractionDigits: 1,
+    });
+
+    const fields = ['assets', 'cash', 'otherAssets', 'liabilities', 'shares', 'fees'];
+
+    function computeNAV() {
+      const values = Object.fromEntries(
+        fields.map((id) => [id, Number(document.getElementById(id).value) || 0])
+      );
+
+      if (values.shares <= 0) {
+        document.getElementById('nav').textContent = 'Nombre de parts invalide';
+        document.getElementById('navPerShare').textContent = '—';
+        document.getElementById('ltv').textContent = '—';
+        return;
+      }
+
+      const totalAssets = values.assets + values.cash + values.otherAssets;
+      const totalLiabilities = values.liabilities + values.fees;
+      const nav = totalAssets - totalLiabilities;
+      const navPerShare = nav / values.shares;
+      const ltv = totalAssets === 0 ? 0 : values.liabilities / totalAssets;
+
+      document.getElementById('nav').textContent = formatter.format(nav);
+      document.getElementById('navPerShare').textContent = formatter.format(navPerShare);
+      document.getElementById('ltv').textContent = percentFormatter.format(ltv);
+    }
+
+    document.getElementById('calculate').addEventListener('click', computeNAV);
+
+    fields.forEach((id) => {
+      document.getElementById(id).addEventListener('input', computeNAV);
+    });
+
+    computeNAV();
+  </script>
+</body>
+</html>
